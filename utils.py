@@ -1,4 +1,4 @@
-import requests
+import httpx
 
 
 def get_http_method_name(d: dict) -> str:
@@ -43,7 +43,7 @@ def all_needed_info_on_endpoint(all_paths, endpoint):
 
 
 def get_all_info_from_json(json_url: str):
-    apis = requests.get(json_url).json()
+    apis = httpx.get(json_url).json()
     all_paths = apis["paths"]
     list_info = []
     for path in all_paths.keys():
@@ -63,14 +63,14 @@ def create_stringified_function_name(info_endpoint: dict):
         parameters_string += "data: dict"
     if parameters_string != '':
         parameters_string += ", "
-    func_name = "def " + info_endpoint[
+    func_name = "async def " + info_endpoint[
         "function_name"] + "(" + parameters_string + "base_url: str = base_url, endpoint: str = '" + info_endpoint[
                     "endpoint"] + "'):"
     return func_name
 
 
 def create_stringified_function_request(info_endpoint: dict):
-    base = "\ttry: \n\t\tres = requests." + info_endpoint["http_method"] + "(url=base_url+endpoint"
+    base = "\ttry: \n\t\tres = await httpx.AsyncClient()." + info_endpoint["http_method"] + "(url=base_url+endpoint"
     if (info_endpoint["http_method"] == "post") or (info_endpoint["http_method"] == "put"):
         body_stringified = ", data=data) \n"
     else:
@@ -79,7 +79,7 @@ def create_stringified_function_request(info_endpoint: dict):
         else:
             body_stringified = ").json() \n"
     base += body_stringified
-    base += "\texcept requests.exceptions.HTTPError as err: \n\t\traise SystemExit(err)"
+    base += "\texcept httpx.HTTPError as err: \n\t\traise SystemExit(err)"
     base += "\n\treturn res"
     return base
 
