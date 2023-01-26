@@ -77,10 +77,10 @@ def create_stringified_function_request(info_endpoint: dict):
         if info_endpoint["params"]:
             body_stringified = "+ '/'" + f"+{info_endpoint['params']['name']}) \n"
         else:
-            body_stringified = ").json() \n"
+            body_stringified = ") \n"
     base += body_stringified
     base += "\texcept httpx.HTTPError as err: \n\t\traise SystemExit(err)"
-    base += "\n\treturn res"
+    base += "\n\treturn res.json()"
     return base
 
 
