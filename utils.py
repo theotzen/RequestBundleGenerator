@@ -72,7 +72,7 @@ def create_stringified_function_name(info_endpoint: dict):
 def create_stringified_function_request(info_endpoint: dict):
     base = "\ttry: \n\t\tres = await client." + info_endpoint["http_method"] + "(url=base_url+endpoint"
     if (info_endpoint["http_method"] == "post") or (info_endpoint["http_method"] == "put"):
-        body_stringified = ", data=data) \n"
+        body_stringified = ", data=data.__dict__)\n\t\tif res.status_code >= 300:\n\t\t\traise HTTPException(status_code=res.status_code) \n"
     else:
         if info_endpoint["params"]:
             body_stringified = "+ '/'" + f"+{info_endpoint['params']['name']}) \n"
