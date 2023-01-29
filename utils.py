@@ -35,6 +35,8 @@ def all_needed_info_on_endpoint(all_paths,
     tag_name = get_tag_name(sub_dict)
     function_name = get_name_function(sub_dict)
     dict_of_params = get_dict_of_parameter(sub_dict)
+    if dict_of_params:
+        endpoint = endpoint.split('{')[0]
     return {
         "endpoint": endpoint,
         "http_method": http_method,
@@ -56,7 +58,7 @@ def get_all_info_from_json(json_url: str):
     return list_info
 
 
-def create_stringified_function_name(info_endpoint: dict):
+def create_stringified_function_name(info_endpoint: dict, async_client: bool):
     if info_endpoint["params"]:
         parameters_string = info_endpoint["params"]["name"] + ": " + info_endpoint["params"]["type"][0:3]
     else:
@@ -65,7 +67,11 @@ def create_stringified_function_name(info_endpoint: dict):
         parameters_string += "data: dict"
     if parameters_string != '':
         parameters_string += ", "
-    func_name = "async def " + info_endpoint[
+    if async_client:
+        name = "async def "
+    else:
+        name = "def "
+    func_name = name + info_endpoint[
         "function_name"] + "(" + parameters_string + "cookies: dict = None, base_url: str = base_url, " \
                                                      "endpoint: str = '" + info_endpoint["endpoint"] + "'):"
 
@@ -82,11 +88,12 @@ def create_stringified_function_request(info_endpoint: dict, async_client: bool)
         body_stringified = ", json=jsonable_encoder(data)"
     else:
         if info_endpoint["params"]:
-            body_stringified = "+ '/'" + f"+{info_endpoint['params']['name']} \n"
+            body_stringified = f"+{info_endpoint['params']['name']}"
         else:
-            body_stringified = ", cookies=cookies)\n\t\tif res.status_code >= 300:\n\t\t\traise HTTPException(" \
-                               "status_code=res.status_code) \n) \n"
+            body_stringified = ""
     base += body_stringified
+    base += ", cookies=cookies)\n\t\tif res.status_code >= 300:\n\t\t\traise HTTPException(" \
+            "status_code=res.status_code, detail=res.json()['detail']) \n"
     base += "\texcept httpx.HTTPError as err: \n\t\traise SystemExit(err)"
     base += "\n\treturn res.json()"
     return base
@@ -100,7 +107,7 @@ def build_whole_python_function(func_header: str,
 def build_all_functions_from_info(all_info: list, async_client: bool) -> dict:
     dict_tags_functions = {}
     for info in all_info:
-        entire_function = build_whole_python_function(create_stringified_function_name(info),
+        entire_function = build_whole_python_function(create_stringified_function_name(info, async_client=async_client),
                                                       create_stringified_function_request(info, async_client=async_client))
         if info["tag_name"] in dict_tags_functions:
             dict_tags_functions[info["tag_name"]] += [entire_function]

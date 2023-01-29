@@ -14,8 +14,7 @@ base_imports_sync = "\"\"\"\n@theotzenRequestBundleGenerator\n" \
                     "HTTPException\n" \
                     "from fastapi.encoders import jsonable_encoder\nfrom app.core.log_config import " \
                     "init_loggers\n\n" \
-                    "loggerIH = init_loggers(__name__)\n\nload_dotenv()\n\nbase_url = os.getenv(" \
-                    "__name__)"
+                    "loggerIH = init_loggers(__name__)\n\nload_dotenv()\n\nbase_url = os.getenv(__name__)"
 
 
 def write_functions_to_python_file_with_path(path_to_write_in: str,
@@ -32,13 +31,15 @@ def write_functions_to_python_file_with_path(path_to_write_in: str,
 
 def from_json_to_writing(base_url: str,
                          path_to_write_in: str,
-                         async_client: bool = True):
+                         client: str = 'async'):
     json_url = base_url + '/openapi.json'
-    all_json = from_json_to_functions(json_url=json_url, async_client=async_client)
-    if async_client:
+    if client != 'sync':
+        async_client = True
         base_imports = base_imports_async
     else:
+        async_client = False
         base_imports = base_imports_sync
+    all_json = from_json_to_functions(json_url=json_url, async_client=async_client)
     write_functions_to_python_file_with_path(path_to_write_in=path_to_write_in, func_dict=all_json,
                                              base_imports=base_imports)
 
