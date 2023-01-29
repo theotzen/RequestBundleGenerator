@@ -11,7 +11,7 @@ def get_sub_dict(d: dict,
 
 
 def get_tag_name(sub_dict: dict) -> str:
-    if not "tags" in sub_dict:
+    if "tags" not in sub_dict:
         return
     return sub_dict["tags"][0].lower()
 
@@ -58,7 +58,8 @@ def get_all_info_from_json(json_url: str):
     return list_info
 
 
-def create_stringified_function_name(info_endpoint: dict, async_client: bool):
+def create_stringified_function_name(info_endpoint: dict,
+                                     async_client: bool):
     if info_endpoint["params"]:
         parameters_string = info_endpoint["params"]["name"] + ": " + info_endpoint["params"]["type"][0:3]
     else:
@@ -78,7 +79,8 @@ def create_stringified_function_name(info_endpoint: dict, async_client: bool):
     return func_name
 
 
-def create_stringified_function_request(info_endpoint: dict, async_client: bool):
+def create_stringified_function_request(info_endpoint: dict,
+                                        async_client: bool):
     if async_client:
         client = "await client."
     else:
@@ -104,11 +106,13 @@ def build_whole_python_function(func_header: str,
     return func_header + "\n" + func_body
 
 
-def build_all_functions_from_info(all_info: list, async_client: bool) -> dict:
+def build_all_functions_from_info(all_info: list,
+                                  async_client: bool) -> dict:
     dict_tags_functions = {}
     for info in all_info:
         entire_function = build_whole_python_function(create_stringified_function_name(info, async_client=async_client),
-                                                      create_stringified_function_request(info, async_client=async_client))
+                                                      create_stringified_function_request(info,
+                                                                                          async_client=async_client))
         if info["tag_name"] in dict_tags_functions:
             dict_tags_functions[info["tag_name"]] += [entire_function]
         else:
@@ -116,7 +120,7 @@ def build_all_functions_from_info(all_info: list, async_client: bool) -> dict:
     return dict_tags_functions
 
 
-def from_json_to_functions(json_url: str, async_client: bool) -> dict:
+def from_json_to_functions(json_url: str,
+                           async_client: bool) -> dict:
     all_info = get_all_info_from_json(json_url=json_url)
     return build_all_functions_from_info(all_info=all_info, async_client=async_client)
-
