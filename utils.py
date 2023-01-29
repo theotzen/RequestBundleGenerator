@@ -5,7 +5,8 @@ def get_http_method_name(d: dict) -> str:
     return next(iter(d))
 
 
-def get_sub_dict(d: dict, http_method: str) -> dict:
+def get_sub_dict(d: dict,
+                 http_method: str) -> dict:
     return d[http_method]
 
 
@@ -26,7 +27,8 @@ def get_dict_of_parameter(sub_dict: dict):
     return {"name": param["name"], "type": param["schema"]["type"]}
 
 
-def all_needed_info_on_endpoint(all_paths, endpoint):
+def all_needed_info_on_endpoint(all_paths,
+                                endpoint):
     path = all_paths[endpoint]
     http_method = get_http_method_name(path)
     sub_dict = get_sub_dict(path, http_method=http_method)
@@ -50,7 +52,7 @@ def get_all_info_from_json(json_url: str):
     list_info = []
     for path in all_paths.keys():
         info = all_needed_info_on_endpoint(all_paths, path)
-        if info["tag_name"] == None:
+        if info["tag_name"] is None:
             continue
         list_info.append(info)
     return list_info
@@ -66,13 +68,13 @@ def create_stringified_function_name(info_endpoint: dict):
     if parameters_string != '':
         parameters_string += ", "
     func_name = "async def " + info_endpoint[
-        "function_name"] + "(" + parameters_string + "cookies: dict = None, base_url: str = base_url, endpoint: str = '" + info_endpoint[
-                    "endpoint"] + "'):"
+        "function_name"] + "(" + parameters_string + "cookies: dict = None, base_url: str = base_url, " \
+                                                     "endpoint: str = '" + info_endpoint["endpoint"] + "'):"
     return func_name
 
 
 def create_stringified_function_request(info_endpoint: dict):
-    base = "\ttry: \n\t\tres = await client." + info_endpoint["http_method"] + "(url=base_url+endpoint"
+    base = "\ttry: \n\t\tres = httpx." + info_endpoint["http_method"] + "(url=base_url+endpoint"
     if (info_endpoint["http_method"] == "post") or (info_endpoint["http_method"] == "put"):
         body_stringified = ", json=jsonable_encoder(data)"
     else:
@@ -81,13 +83,15 @@ def create_stringified_function_request(info_endpoint: dict):
         else:
             body_stringified = ""
     base += body_stringified
-    base += ", cookies=cookies)\n\t\tif res.status_code >= 300:\n\t\t\traise HTTPException(status_code=res.status_code, detail=res.json()['detail']) \n"
+    base += ", cookies=cookies)\n\t\tif res.status_code >= 300:\n\t\t\t" \
+            "raise HTTPException(status_code=res.status_code, detail=res.json()['detail']) \n"
     base += "\texcept httpx.HTTPError as err: \n\t\traise SystemExit(err)"
     base += "\n\treturn res.json()"
     return base
 
 
-def build_whole_python_function(func_header: str, func_body: str):
+def build_whole_python_function(func_header: str,
+                                func_body: str):
     return func_header + "\n" + func_body
 
 
@@ -108,7 +112,9 @@ def from_json_to_functions(json_url: str) -> dict:
     return build_all_functions_from_info(all_info=all_info)
 
 
-def write_functions_to_python_file_with_path(path_to_write_in: str, func_dict: dict, base_imports: str):
+def write_functions_to_python_file_with_path(path_to_write_in: str,
+                                             func_dict: dict,
+                                             base_imports: str):
     for key in func_dict.keys():
         final_path = path_to_write_in + "/" + key + "_req.py"
         to_write = "\n\n\n".join(func_dict[key])
