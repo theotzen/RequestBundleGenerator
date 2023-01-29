@@ -33,6 +33,8 @@ def all_needed_info_on_endpoint(all_paths, endpoint):
     tag_name = get_tag_name(sub_dict)
     function_name = get_name_function(sub_dict)
     dict_of_params = get_dict_of_parameter(sub_dict)
+    if dict_of_params:
+        endpoint = endpoint.split('{')[0]
     return {
         "endpoint": endpoint,
         "http_method": http_method,
@@ -75,10 +77,11 @@ def create_stringified_function_request(info_endpoint: dict):
         body_stringified = ", json=jsonable_encoder(data)"
     else:
         if info_endpoint["params"]:
-            body_stringified = "+ '/'" + f"+{info_endpoint['params']['name']} \n"
+            body_stringified = f"+{info_endpoint['params']['name']}"
         else:
-            body_stringified = ", cookies=cookies)\n\t\tif res.status_code >= 300:\n\t\t\traise HTTPException(status_code=res.status_code) \n) \n"
+            body_stringified = ""
     base += body_stringified
+    base += ", cookies=cookies)\n\t\tif res.status_code >= 300:\n\t\t\traise HTTPException(status_code=res.status_code, detail=res.json()['detail']) \n"
     base += "\texcept httpx.HTTPError as err: \n\t\traise SystemExit(err)"
     base += "\n\treturn res.json()"
     return base
