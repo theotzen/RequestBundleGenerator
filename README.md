@@ -1,10 +1,10 @@
-# RequestBundleGenerator
+# RequestClientGenerator
 
 Map OpenAPI to a bundle to get simple internal requests.
 
 Define your OpenAPI documentation URL, a path of where to generate the bundle, and run 
 
-`python3 path/to/package/main.py '<base_url/OpenAPI/docs>>' '/path/to/generate/req_bundles'
+`python3 path/to/package/main.py '<base_url/OpenAPI/docs>>' '/path/to/generate/req_bundles <async|sync>'
 `
 
 Each define request in OpenAPI will generate an async HTTP call function designed to hit the related endpoint from another service. 
