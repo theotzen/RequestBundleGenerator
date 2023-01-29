@@ -32,7 +32,7 @@ def write_functions_to_python_file_with_path(path_to_write_in: str,
 
 def from_json_to_writing(base_url: str,
                          path_to_write_in: str,
-                         async_client: bool):
+                         async_client: bool = True):
     json_url = base_url + '/openapi.json'
     all_json = from_json_to_functions(json_url=json_url, async_client=async_client)
     if async_client:
