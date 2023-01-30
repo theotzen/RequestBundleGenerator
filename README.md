@@ -5,7 +5,7 @@ Map OpenAPI `json` to client functions to get simple internal requests.
 
 Define your OpenAPI documentation URL, a path of where to generate the `.py` files, precise if you'd like a asynchronous or synchronous client, and run 
 
-`python3 path/to/package/main.py '<base_url/OpenAPI/docs>>' '/path/to/generate/req_bundles' <async|sync>
+`python3 path/to/package/main.py '<base_url/OpenAPI/docs>' '/path/to/generate/req_bundles' <async|sync>
 `
 
 Each defined request in OpenAPI will generate an async/sync HTTP call function designed to hit the related endpoint from another service. 
